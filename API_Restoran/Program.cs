@@ -32,17 +32,22 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+/* ---------- Swagger всегда, если хотим проверять prod ---------- */
+app.UseSwagger();
+app.UseSwaggerUI();
+
+/* ---------- HTTPS (Railway сам терминирует TLS) ---------- */
+if (!app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    // В контейнере HTTPS-редирект обычно не нужен.
+    // Комментируем при желании:
+    // app.UseHttpsRedirection();
 }
 
-app.UseHttpsRedirection();
+/* ---------- Пробрасываем порт Railway ---------- */
+var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
+app.Urls.Add($"http://*:{port}");
 
 app.UseAuthorization();
-
 app.MapControllers();
-
 app.Run();

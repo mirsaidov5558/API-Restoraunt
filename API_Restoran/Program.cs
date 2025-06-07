@@ -25,43 +25,47 @@ builder.Services.AddScoped<IOrderItemService, OrderItemService>(); // OrderItemS
 builder.Services.AddScoped<IRoleService, RoleService>();
 builder.Services.AddScoped<ITableService, TableService>();
 
-// Add services to the container.
-// Настройка CORS
+
+// ✅ CORS
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.WithOrigins("http://localhost:4200") // ← адрес Angular-приложения
-              .AllowAnyHeader()
-              .AllowAnyMethod();
+        policy.WithOrigins(
+                "http://localhost:4200",
+                "https://restoran-front-production.up.railway.app"
+            )
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials(); // ← обязательно, если используешь куки или токены!
     });
 });
 
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-/* ---------- Swagger всегда, если хотим проверять prod ---------- */
+// Swagger
 app.UseSwagger();
 app.UseSwaggerUI();
 
-// Использование политики CORS (должно быть до авторизации!)
+// ✅ Добавляем UseRouting
+app.UseRouting();
+
+// ✅ CORS — после UseRouting, до авторизации
 app.UseCors("AllowFrontend");
 
-/* ---------- HTTPS (Railway сам терминирует TLS) ---------- */
-if (!app.Environment.IsDevelopment())
-{
-    
-    // app.UseHttpsRedirection();
-}
+// Авторизация
+app.UseAuthorization();
 
-/* ---------- Пробрасываем порт Railway ---------- */
+// Маршруты
+app.MapControllers();
+
+// Railway порт
 var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
 app.Urls.Add($"http://*:{port}");
 
-app.UseAuthorization();
-app.MapControllers();
+// Запуск
 app.Run();

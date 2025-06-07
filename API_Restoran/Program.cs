@@ -64,5 +64,10 @@ app.MapControllers();
 var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
 app.Urls.Add($"http://*:{port}");
 
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    db.Database.Migrate(); // это применит все миграции при старте
+}
 // Запускаем приложение
 app.Run();

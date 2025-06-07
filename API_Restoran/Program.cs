@@ -26,18 +26,15 @@ builder.Services.AddScoped<IRoleService, RoleService>();
 builder.Services.AddScoped<ITableService, TableService>();
 
 
-// ✅ CORS
+// Настройка CORS — политика "AllowAll" разрешает любые источники, заголовки и методы (для разработки)
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowFrontend", policy =>
+    options.AddPolicy("AllowAll", policy =>
     {
-        policy.WithOrigins(
-                "http://localhost:4200",
-                "https://restoran-front-production.up.railway.app"
-            )
+        policy
+            .AllowAnyOrigin()
             .AllowAnyHeader()
-            .AllowAnyMethod()
-            .AllowCredentials(); // ← обязательно, если используешь куки или токены!
+            .AllowAnyMethod();
     });
 });
 
@@ -47,25 +44,25 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// Swagger
+// Включаем Swagger для генерации и отображения документации
 app.UseSwagger();
 app.UseSwaggerUI();
 
-// ✅ Добавляем UseRouting
+// Включаем маршрутизацию (обязательно перед CORS)
 app.UseRouting();
 
-// ✅ CORS — после UseRouting, до авторизации
-app.UseCors("AllowFrontend");
+// Включаем CORS с выбранной политикой — после UseRouting, до UseAuthorization
+app.UseCors("AllowAll");
 
-// Авторизация
+// Включаем авторизацию (если в проекте используется)
 app.UseAuthorization();
 
-// Маршруты
+// Подключаем маршруты контроллеров
 app.MapControllers();
 
-// Railway порт
+// Настраиваем порт из переменной окружения (Railway, Heroku и др.), если не задан — 8080
 var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
 app.Urls.Add($"http://*:{port}");
 
-// Запуск
+// Запускаем приложение
 app.Run();

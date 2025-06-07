@@ -21,7 +21,8 @@ builder.Services.AddScoped<IOrderService, OrderService>(); // OrderService
 builder.Services.AddScoped<IMenuService, MenuService>(); // MenuService
 builder.Services.AddScoped<IMenuKitchenService, MenuKitchenService>(); // MenuKitchenService
 builder.Services.AddScoped<IOrderItemService, OrderItemService>(); // OrderItemService
-
+builder.Services.AddScoped<IRoleService, RoleService>();
+builder.Services.AddScoped<ITableService, TableService>();
 
 // Add services to the container.
 
@@ -39,8 +40,7 @@ app.UseSwaggerUI();
 /* ---------- HTTPS (Railway сам терминирует TLS) ---------- */
 if (!app.Environment.IsDevelopment())
 {
-    // В контейнере HTTPS-редирект обычно не нужен.
-    // Комментируем при желании:
+    
     // app.UseHttpsRedirection();
 }
 

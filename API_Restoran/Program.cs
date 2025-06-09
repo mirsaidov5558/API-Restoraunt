@@ -13,7 +13,6 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddAutoMapper(typeof(UserProfile)); // ищет все профили
 
 
-
 builder.Services.AddScoped<IUserService, UserService>(); // UserService
 builder.Services.AddScoped<IIngredientService, IngredientService>(); // IngredientService
 builder.Services.AddScoped<IDishService, DishService>(); // DishService
